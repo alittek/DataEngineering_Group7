@@ -25,6 +25,8 @@ services:
       - hadoop_namenode:/hadoop/dfs/name
     environment:
       - CLUSTER_NAME=test
+    depends_on:
+      - jupyterlab
     env_file:
       - ./hadoop/hadoop.env
 
@@ -36,6 +38,8 @@ services:
       - hadoop_datanode:/hadoop/dfs/data
     networks:
      - bds-network
+    depends_on:
+      - jupyterlab
     environment:
       SERVICE_PRECONDITION: "hadoop-namenode:9870"
     env_file:
@@ -47,6 +51,8 @@ services:
     build: ./hadoop/resourcemanager
     networks:
      - bds-network
+    depends_on:
+      - jupyterlab
     environment:
       SERVICE_PRECONDITION: "hadoop-namenode:9000 hadoop-namenode:9870 hadoop-datanode:9864"
     env_file:
@@ -58,6 +64,8 @@ services:
     build: ./hadoop/nodemanager
     networks:
      - bds-network
+    depends_on:
+      - jupyterlab
     environment:
       SERVICE_PRECONDITION: "hadoop-namenode:9000 hadoop-namenode:9870 hadoop-datanode:9864 hadoop-resourcemanager:8088"
     env_file:
@@ -86,6 +94,8 @@ services:
       - INIT_DAEMON_STEP=setup_spark
     networks:
       - bds-network
+    depends_on:
+      - jupyterlab
     volumes:
       - shared-workspace:/opt/workspace
 
