@@ -127,6 +127,62 @@ services:
     volumes:
       - shared-workspace:/opt/workspace
 
+  spark-worker-3:
+    image: andreper/spark-worker
+    container_name: spark-worker-3
+    depends_on:
+      - spark-master
+    ports:
+      - 8083:8081
+    environment:
+      - “SPARK_MASTER=spark://spark-master:7077”
+    networks:
+      - bds-network
+    volumes:
+      - shared-workspace:/opt/workspace
+
+  spark-worker-4:
+    image: andreper/spark-worker
+    container_name: spark-worker-4
+    depends_on:
+      - spark-master
+    ports:
+      - 8084:8081
+    environment:
+      - “SPARK_MASTER=spark://spark-master:7077”
+    networks:
+      - bds-network
+    volumes:
+      - shared-workspace:/opt/workspace
+
+  spark-worker-5:
+    image: andreper/spark-worker
+    container_name: spark-worker-5
+    depends_on:
+      - spark-master
+    ports:
+      - 8085:8081
+    environment:
+      - “SPARK_MASTER=spark://spark-master:7077”
+    networks:
+      - bds-network
+    volumes:
+      - shared-workspace:/opt/workspace
+
+  spark-worker-6:
+    image: andreper/spark-worker
+    container_name: spark-worker-6
+    depends_on:
+      - spark-master
+    ports:
+      - 8086:8081
+    environment:
+      - “SPARK_MASTER=spark://spark-master:7077”
+    networks:
+      - bds-network
+    volumes:
+      - shared-workspace:/opt/workspace
+
 volumes:
   hadoop_namenode:
   hadoop_datanode:
