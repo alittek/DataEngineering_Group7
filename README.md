@@ -8,3 +8,5 @@ wget -qO- https://files.pushshift.io/reddit/comments/RC_2011-08.zst | zstd --lon
 ```
 
 This will download the data from the pushshift.io website, decompress it, and upload it to HDFS, all without storing anything in the middle as it is streamed. The data is stored in the `/reddit` directory on HDFS.
+
+Check the README files inside horizontal solution and vertical solution folders to see the instructions to reproduce the work!
