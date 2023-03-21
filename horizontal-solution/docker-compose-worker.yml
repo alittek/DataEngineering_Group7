@@ -1,42 +1,28 @@
-version: '3.8'
+version: "3"
+
+volumes:
+  datanode:
 
 services:
-  datanode:
+  hdfs-datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
-    container_name: datanode
+    container_name: hdfs-datanode
     environment:
-      - shared-workspace:/opt/workspace
-    networks:
-      - hadoop
-    deploy:
-      replicas: 1
-      mode: replicated
-      placement:
-        constraints: [node.role != manager]
+      - CORE_CONF_fs_defaultFS=hdfs://192.168.2.107:8020
+    volumes:
+      - datanode:/hadoop/dfs/data
+    network_mode: "host"
+
   spark-worker:
-    image: bitnami/spark
-    ports:
-      - "8081:8081"
+    image: bitnami/spark:3.3.2-debian-11-r9
+    container_name: spark-worker
     environment:
       - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=1G
+      - SPARK_MASTER_URL=spark://192.168.2.107:7077
+      - SPARK_WORKER_MEMORY=1g
       - SPARK_WORKER_CORES=1
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
-    networks:
-      - hadoop
-    deploy:
-      replicas: 1
-      mode: replicated
-      placement:
-        constraints: [node.role != manager]
-
-volumes:
-  datanode:
-
-networks:
-  hadoop:
-    driver: bridge
+    network_mode: "host"

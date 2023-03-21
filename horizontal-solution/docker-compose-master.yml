@@ -1,77 +1,51 @@
-version: '3.8'
+version: '3'
+
+volumes:
+  shared-workspace:
+    driver: local
+  namenode-data:
+    driver: local
 
 services:
-  namenode:
-    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
-    hostname: namenode
-    networks:
-      - hadoop
-    environment:
-      - CLUSTER_NAME=test
+  jupyterlab:
+    container_name: jupyterlab
+    image: jupyter/base-notebook:python-3.8.3
     volumes:
-      - namenode:/hadoop/dfs/name
-    ports:
-      - "9870:9870"
-      - "8020:8020"
-    deploy:
-      placement:
-        constraints: [node.role == manager]
-  datanode:
-    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
-    container_name: datanode
-    networks:
-      - hadoop
-    environment:
-      - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
-      - CORE_CONF_hadoop_proxyuser_hue_hosts=*
-      - CORE_CONF_hadoop_proxyuser_hue_groups=*
-    volumes:
-      - datanode:/hadoop/dfs/data
-    ports:
-      - "9864:9864"
-    deploy:
-      replicas: 1
-      mode: replicated
-      placement:
-        constraints: [node.role != manager]
+      - shared-workspace:/opt/workspace
+    network_mode: "host"
 
   spark-master:
     image: bitnami/spark:latest
-    ports:
-      - "8080:8080"
-      - "7077:7077"
+    container_name: spark-master
     environment:
       - SPARK_MODE=master
+      - SPARK_MASTER_URL=spark://192.168.2.107:7077
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
+    network_mode: "host"
     volumes:
       - shared-workspace:/opt/workspace
-      # - ./hadoop-conf:/opt/bitnami/spark/hadoop/conf
-    networks:
-      - hadoop
     deploy:
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.hostname == 192.168.2.107
 
-  jupyterlab:
-    image: jupyter/all-spark-notebook:latest
+  hdfs-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: hdfs-namenode
+    environment:
+      - HDFS_CONF_dfs_namenode_http_bind_host=0.0.0.0
+      - CLUSTER_NAME=hadoop
+      - CORE_CONF_fs_defaultFS=hdfs://127.0.0.1:8020
+      - HDFS_CONF_dfs_namenode_rpc_address=127.0.0.1:8020
+      - HDFS_CONF_dfs_namenode_http_address=0.0.0.0:50070
     volumes:
-      - ./hadoop-conf:/opt/bitnami/spark/hadoop/conf
-    ports:
-      - "8888:8888"
-    networks:
-      - hadoop
+      - namenode-data:/hadoop/dfs/name
+    network_mode: "host"
     deploy:
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.hostname == 192.168.2.107
 
-volumes:
-  shared-workspace:
-  namenode:
-  datanode:
-
-networks:
-  hadoop:
-    driver: bridge
